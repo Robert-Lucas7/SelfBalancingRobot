@@ -1,0 +1,230 @@
+<?xml version="1.0" ?>
+<sdf version="1.9">
+  <world name="empty">
+    <physics name="1ms" type="ignored">
+        <max_step_size>0.001</max_step_size>
+        <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <plugin
+        filename="gz-sim-physics-system"
+        name="gz::sim::systems::Physics">
+    </plugin>
+    <plugin
+        filename="gz-sim-user-commands-system"
+        name="gz::sim::systems::UserCommands">
+    </plugin>
+    <plugin
+        filename="gz-sim-scene-broadcaster-system"
+        name="gz::sim::systems::SceneBroadcaster">
+    </plugin>
+
+    <light type="directional" name="sun">
+        <cast_shadows>true</cast_shadows>
+        <pose>0 0 10 0 0 0</pose>
+        <diffuse>0.8 0.8 0.8 1</diffuse>
+        <specular>0.2 0.2 0.2 1</specular>
+        <attenuation>
+            <range>1000</range>
+            <constant>0.9</constant>
+            <linear>0.01</linear>
+            <quadratic>0.001</quadratic>
+        </attenuation>
+        <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <model name="ground_plane">
+        <static>true</static>
+        <link name="link">
+            <collision name="collision">
+            <geometry>
+                <plane>
+                <normal>0 0 1</normal>
+                </plane>
+            </geometry>
+            </collision>
+            <visual name="visual">
+            <geometry>
+                <plane>
+                <normal>0 0 1</normal>
+                <size>100 100</size>
+                </plane>
+            </geometry>
+            <material>
+                <ambient>0.8 0.8 0.8 1</ambient>
+                <diffuse>0.8 0.8 0.8 1</diffuse>
+                <specular>0.8 0.8 0.8 1</specular>
+            </material>
+            </visual>
+        </link>
+    </model>
+    <model name="differential_drive_robot" canonical_link="chassis" xmlns:xacro="http://www.ros.org/wiki/xacro">
+      <xacro:property name="chassis_mass" value="2"/>
+      <xacro:property name="chassis_x" value="0.5"/>
+      <xacro:property name="chassis_y" value="1.0"/>
+      <xacro:property name="chassis_z" value="2"/>
+      <xacro:property name="wheel_mass" value="0.5"/>
+      <xacro:property name="wheel_radius" value="0.4"/>
+      <xacro:property name="wheel_width" value="0.2"/>
+
+      <xacro:macro name="cuboid_inertia" params="mass x y z">
+        <inertia>
+            <ixx>${(1/12.0)*mass*(y*y + z*z)}</ixx>
+            <iyy>${(1/12.0)*mass*(x*x + z*z)}</iyy>
+            <izz>${(1/12.0)*mass*(x*x + y*y)}</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+      </xacro:macro>
+      <xacro:macro name="cylinder_inertia" params="mass radius width">
+          <inertia>
+            <ixx>${(1/12.0)*mass*(3*radius*radius + width*width)}</ixx>
+            <iyy>${(1/12.0)*mass*(3*radius*radius + width*width)}</iyy>
+            <izz>${(1/2.0)*mass*radius*radius}</izz>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyz>0</iyz>
+          </inertia>
+      </xacro:macro>
+
+      <pose relative_to='world'>0 0 1 0 -0.015 0</pose> <!-- Small pitch applied so the robot is initially off balance-->
+      
+      <link name="chassis">
+        <pose relative_to='__model__'>0 0 ${chassis_z/2} 0 0 0</pose>
+        <inertial>
+          <mass>${chassis_mass}</mass>
+          <xacro:cuboid_inertia mass="${chassis_mass}" x="${chassis_x}" y="${chassis_y}" z="${chassis_z}" />
+        </inertial>
+
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>${chassis_x} ${chassis_y} ${chassis_z}</size>
+            </box>
+          </geometry>
+        </collision>
+
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>${chassis_x} ${chassis_y} ${chassis_z}</size>
+            </box>
+          </geometry>
+        </visual>
+
+        <!-- IMU sensor -->
+        <sensor name="imu_sensor" type="imu">
+          <always_on>true</always_on>
+          <update_rate>100</update_rate>
+          <topic>imu</topic>
+          <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu">
+            <topic>imu</topic>
+            <frame_id>chassis</frame_id>
+          </plugin>
+        </sensor>
+      </link>
+
+      <!-- Left wheel -->
+      <link name="left_wheel">
+        <pose>0 ${chassis_y/2} 0 1.5707 0 0</pose>
+        <inertial>
+          <mass>${wheel_mass}</mass>
+          <xacro:cylinder_inertia mass="${wheel_mass}" radius="${wheel_radius}" width="${wheel_width}"/>
+        </inertial>
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>${wheel_radius}</radius>
+              <length>${wheel_width}</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>${wheel_radius}</radius>
+              <length>${wheel_width}</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+
+      <!-- Right wheel -->
+      <link name="right_wheel">
+        <pose>0 ${-chassis_y/2} 0 -1.5707 0 0</pose>
+        <inertial>
+          <mass>${wheel_mass}</mass>
+          <xacro:cylinder_inertia mass="${wheel_mass}" radius="${wheel_radius}" width="${wheel_width}"/>
+        </inertial>
+        <collision name="collision">
+          <geometry>
+            <cylinder>
+              <radius>${wheel_radius}</radius>
+              <length>${wheel_width}</length>
+            </cylinder>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>${wheel_radius}</radius>
+              <length>${wheel_width}</length>
+            </cylinder>
+          </geometry>
+        </visual>
+      </link>
+
+      <!-- Joints -->
+      <joint name="left_wheel_joint" type="revolute">
+        <parent>chassis</parent>
+        <child>left_wheel</child>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-1e16</lower>
+            <upper>1e16</upper>
+          </limit>
+        </axis>
+      </joint>
+
+      <joint name="right_wheel_joint" type="revolute">
+        <parent>chassis</parent>
+        <child>right_wheel</child>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+          <lower>-1e16</lower>
+          <upper>1e16</upper>
+        </limit>
+        </axis>
+      </joint>
+
+      <!-- Differential drive plugin -->
+      <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+        <odom_publisher_frequency>100</odom_publisher_frequency>
+        <left_joint>left_wheel_joint</left_joint>
+        <right_joint>right_wheel_joint</right_joint>
+        <wheel_separation>${chassis_y}</wheel_separation>
+        <wheel_diameter>${2*wheel_radius}</wheel_diameter>
+        <max_wheel_torque>200000</max_wheel_torque>
+        <max_acceleration>100000.0</max_acceleration>
+        <max_velocity>100000.0</max_velocity>
+        <max_jerk>100000.0</max_jerk>
+        <topic>cmd_vel</topic>
+        <publish_odom>true</publish_odom>
+        <publish_odom_tf>true</publish_odom_tf>
+        <publish_wheel_tf>true</publish_wheel_tf>
+        <odom_topic>odom</odom_topic>
+        <frame_id>odom</frame_id>
+        <child_frame_id>chassis</child_frame_id>
+      </plugin>
+
+      <!-- Joint state publisher -->
+      <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+        <update_rate>50</update_rate>
+        <joint_name>left_wheel_joint</joint_name>
+        <joint_name>right_wheel_joint</joint_name>
+      </plugin>
+
+    </model>
+  </world>
+</sdf>
