@@ -46,6 +46,11 @@ install(TARGETS
   robot_control_pid
   DESTINATION lib/${PROJECT_NAME})
 
+include_directories(
+  include
+  /home/rob/ros2_ws/src/third_party
+)
+
 ament_target_dependencies(robot_control_pid
   rclcpp
   std_msgs
