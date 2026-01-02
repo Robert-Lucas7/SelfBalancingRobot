@@ -40,6 +40,9 @@ add_executable(robot_control_rl
   src/control_files/robot_control_rl.cpp
   src/control_files/utils/robot_utils.cpp)
 
+// Suppress warnings from RLTools
+target_compile_options(robot_control_rl PRIVATE -Wno-unused-local-typedefs)
+
 install(DIRECTORY src/launch
   DESTINATION share/${PROJECT_NAME}/
 )
@@ -55,6 +58,7 @@ install(TARGETS
 include_directories(
   include
   /home/rob/ros2_ws/src/third_party
+  /home/rob/ros2_ws/src/self_balancing_robot/src/rl-tools/include
 )
 
 ament_target_dependencies(robot_control_pid

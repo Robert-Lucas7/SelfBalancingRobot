@@ -6,7 +6,6 @@
 class RobotControlRL : public rclcpp::Node {
 public:
     RobotControlRL();
-
 private:
     // Declare private members here
 };
