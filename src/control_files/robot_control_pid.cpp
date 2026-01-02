@@ -7,8 +7,8 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "ros_gz_interfaces/srv/control_world.hpp"
-#include "angles/angles.h"
 #include "matplot/matplot.h"
+#include "self_balancing_robot/robot_utils.hpp"
 
 using namespace std::chrono_literals;
 
@@ -45,14 +45,14 @@ private:
     if (isImuData){
       double roll, pitch, yaw;  // currently only the pitch is used
       // Convert the orientation data from the IMU from quaternion to euler angles
-      quaternion_to_euler(latestImuMsg.orientation.x, latestImuMsg.orientation.y, latestImuMsg.orientation.z, latestImuMsg.orientation.w, roll, pitch, yaw);
+      robot_utils::quaternion_to_euler(latestImuMsg.orientation.x, latestImuMsg.orientation.y, latestImuMsg.orientation.z, latestImuMsg.orientation.w, roll, pitch, yaw);
 
       if (isFirstIteration) {
         lastTime = std::chrono::steady_clock::now();
         isFirstIteration = false;
       }
 
-      if (check_episode_finished(pitch)) {
+      if (robot_utils::checkEpisodeFinished(pitch)) {
         pauseSimulation(true);
         timer->cancel();  // stop the control loop
         RCLCPP_INFO(this->get_logger(), "The Robot Has Fallen. Stopping the simulation.");
@@ -98,34 +98,6 @@ private:
       }
     } else {
       RCLCPP_INFO(this->get_logger(), "No IMU data received yet.");
-    }
-  }
-
-  /* Convert quaternion to euler angles */
-  void quaternion_to_euler(double x, double y, double z, double w, double &roll_x, double &pitch_y, double &yaw_z){
-    // Roll (x-axis rotation)
-    double t0 = 2.0 * (w * x + y * z);
-    double t1 = 1.0 - 2.0 * (x * x + y * y);
-    roll_x = std::atan2(t0, t1);
-
-    // Pitch (y-axis rotation)
-    double t2 = 2.0 * (w * y - z * x);
-    if (t2 > 1.0) t2 = 1.0;
-    if (t2 < -1.0) t2 = -1.0;
-    pitch_y = std::asin(t2);
-
-    // Yaw (z-axis rotation)
-    double t3 = 2.0 * (w * z + x * y);
-    double t4 = 1.0 - 2.0 * (y * y + z * z);
-    yaw_z = std::atan2(t3, t4);
-  }
-
-  /* Check whether the 'episode' has finished. Currently it is only based on the pitch angle. */
-  bool check_episode_finished(double pitch){
-    if(std::abs(pitch) > angles::from_degrees(45.0)){
-      return true;
-    } else {
-      return false;
     }
   }
 

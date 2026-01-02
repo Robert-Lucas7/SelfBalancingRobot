@@ -3,7 +3,7 @@
 
 namespace robot_utils {
     void quaternion_to_euler(double x, double y, double z, double w, double &roll_x, double &pitch_y, double &yaw_z);
-    void test();
+    bool checkEpisodeFinished(double pitch);
 }
 
 #endif

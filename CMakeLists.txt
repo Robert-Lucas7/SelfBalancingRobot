@@ -31,7 +31,9 @@ find_package(angles REQUIRED)
 
 find_package(Matplot++ REQUIRED)
 
-add_executable(robot_control_pid src/control_files/robot_control_pid.cpp)
+add_executable(robot_control_pid 
+  src/control_files/robot_control_pid.cpp
+  src/control_files/utils/robot_utils.cpp)
 target_link_libraries(robot_control_pid Matplot++::matplot)
 
 add_executable(robot_control_rl 

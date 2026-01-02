@@ -5,7 +5,7 @@
 
 RobotControlRL::RobotControlRL() : Node("robot_control_rl") {
     RCLCPP_INFO(this->get_logger(), "RobotControlRL node has been started.");
-    robot_utils::test();
+    
 }
 
 int main(int argc, char** argv) {
