@@ -1,15 +1,12 @@
-#include "rclcpp/rclcpp.hpp"
-#include "self_balancing_robot/robot_utils.hpp"
 
-class RobotControlRL: public rclcpp::Node {
-    public:
-        RobotControlRL(): Node("robot_control_rl") {
-            RCLCPP_INFO(this->get_logger(), "RobotControlRL node has been started.");
-            robot_utils::test();
-        }
-    private:
-        // Private members
-};
+#include "self_balancing_robot/robot_utils.hpp"
+// rclcpp is included in robot_control_rl.hpp below.
+#include "self_balancing_robot/robot_control_rl.hpp"
+
+RobotControlRL::RobotControlRL() : Node("robot_control_rl") {
+    RCLCPP_INFO(this->get_logger(), "RobotControlRL node has been started.");
+    robot_utils::test();
+}
 
 int main(int argc, char** argv) {
     rclcpp::init(argc, argv);
