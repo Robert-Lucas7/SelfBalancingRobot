@@ -34,6 +34,9 @@ find_package(Matplot++ REQUIRED)
 add_executable(robot_control_pid src/control_files/robot_control_pid.cpp)
 target_link_libraries(robot_control_pid Matplot++::matplot)
 
+add_executable(robot_control_rl 
+  src/control_files/robot_control_rl.cpp
+  src/control_files/utils/robot_utils.cpp)
 
 install(DIRECTORY src/launch
   DESTINATION share/${PROJECT_NAME}/
@@ -44,6 +47,7 @@ install(DIRECTORY src/models
 
 install(TARGETS
   robot_control_pid
+  robot_control_rl
   DESTINATION lib/${PROJECT_NAME})
 
 include_directories(
@@ -52,6 +56,13 @@ include_directories(
 )
 
 ament_target_dependencies(robot_control_pid
+  rclcpp
+  std_msgs
+  sensor_msgs
+  ros_gz_interfaces
+  angles)
+
+ament_target_dependencies(robot_control_rl
   rclcpp
   std_msgs
   sensor_msgs
