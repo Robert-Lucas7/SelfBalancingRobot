@@ -31,9 +31,15 @@ find_package(angles REQUIRED)
 
 find_package(Matplot++ REQUIRED)
 
-add_executable(robot_control_pid src/control_files/robot_control_pid.cpp)
+add_executable(robot_control_pid 
+  src/control_files/robot_control_pid.cpp)
 target_link_libraries(robot_control_pid Matplot++::matplot)
 
+add_executable(robot_control_rl 
+  src/control_files/robot_control_rl.cpp)
+
+# Suppress warnings from RLTools
+target_compile_options(robot_control_rl PRIVATE -Wno-unused-local-typedefs -Wno-unused-parameter -Wno-unused-variable)
 
 install(DIRECTORY src/launch
   DESTINATION share/${PROJECT_NAME}/
@@ -44,11 +50,13 @@ install(DIRECTORY src/models
 
 install(TARGETS
   robot_control_pid
+  robot_control_rl
   DESTINATION lib/${PROJECT_NAME})
 
 include_directories(
   include
   /home/rob/ros2_ws/src/third_party
+  /home/rob/ros2_ws/src/self_balancing_robot/src/rl-tools/include
 )
 
 ament_target_dependencies(robot_control_pid
@@ -57,5 +65,13 @@ ament_target_dependencies(robot_control_pid
   sensor_msgs
   ros_gz_interfaces
   angles)
+
+ament_target_dependencies(robot_control_rl
+  rclcpp
+  std_msgs
+  sensor_msgs
+  ros_gz_interfaces
+  angles
+  rosgraph_msgs)
 
 ament_package()

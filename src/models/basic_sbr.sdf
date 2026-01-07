@@ -54,8 +54,9 @@
       </link>
     </model>
     <model canonical_link="chassis" name="differential_drive_robot">
-      <pose relative_to="world">0 0 1 0 -0.015 0</pose>
-      <!-- Small pitch applied so the robot is initially off balance-->
+      <!-- <xacro:property name="distance_above_ground" value="0"/> -->
+      <pose relative_to="world">0 0 0.4 0 0 0</pose>
+      <!-- -0.015 0</pose> Small pitch applied so the robot is initially off balance-->
       <link name="chassis">
         <pose relative_to="__model__">0 0 1.0 0 0 0</pose>
         <inertial>
