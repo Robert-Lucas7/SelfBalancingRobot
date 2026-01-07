@@ -64,6 +64,7 @@
       <xacro:property name="wheel_mass" value="0.5"/>
       <xacro:property name="wheel_radius" value="0.4"/>
       <xacro:property name="wheel_width" value="0.2"/>
+      <!-- <xacro:property name="distance_above_ground" value="0"/> -->
 
       <xacro:macro name="cuboid_inertia" params="mass x y z">
         <inertia>
@@ -86,7 +87,7 @@
           </inertia>
       </xacro:macro>
 
-      <pose relative_to='world'>0 0 1 0 -0.015 0</pose> <!-- Small pitch applied so the robot is initially off balance-->
+      <pose relative_to='world'>0 0 ${wheel_radius} 0 0 0</pose><!-- -0.015 0</pose> Small pitch applied so the robot is initially off balance--> 
       
       <link name="chassis">
         <pose relative_to='__model__'>0 0 ${chassis_z/2} 0 0 0</pose>

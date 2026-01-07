@@ -18,7 +18,7 @@ public:
   RobotControlPID()
   : Node("robot_control_pid")
   {
-    controlClient = this->create_client<ros_gz_interfaces::srv::ControlWorld>("/world/empty/control");
+    controlClient = this->create_client<ros_gz_interfaces::srv::ControlWorld>("/control");
     imuSub = this->create_subscription<sensor_msgs::msg::Imu>(
       "/imu", 1, std::bind(&RobotControlPID::imu_callback, this, std::placeholders::_1));
     
@@ -45,14 +45,15 @@ private:
     if (isImuData){
       double roll, pitch, yaw;  // currently only the pitch is used
       // Convert the orientation data from the IMU from quaternion to euler angles
-      robot_utils::quaternion_to_euler(latestImuMsg.orientation.x, latestImuMsg.orientation.y, latestImuMsg.orientation.z, latestImuMsg.orientation.w, roll, pitch, yaw);
+      // <double> type used to keep functionality the same as before (before templating)
+      robot_utils::quaternion_to_euler<double>(latestImuMsg.orientation.x, latestImuMsg.orientation.y, latestImuMsg.orientation.z, latestImuMsg.orientation.w, roll, pitch, yaw);
 
       if (isFirstIteration) {
         lastTime = std::chrono::steady_clock::now();
         isFirstIteration = false;
       }
 
-      if (robot_utils::checkEpisodeFinished(pitch)) {
+      if (robot_utils::checkEpisodeFinished<double>(pitch)) {
         pauseSimulation(true);
         timer->cancel();  // stop the control loop
         RCLCPP_INFO(this->get_logger(), "The Robot Has Fallen. Stopping the simulation.");

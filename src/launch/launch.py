@@ -46,7 +46,8 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(gz_launch_path),
             launch_arguments={
                 'gz_args': sdf_file,
-                'on_exit_shutdown': 'True'
+                'on_exit_shutdown': 'True',
+                'use_sim_time': 'True'
             }.items(),
         ),
         Node(
@@ -56,8 +57,13 @@ def generate_launch_description():
                        '/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
                        '/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
                        '/imu@sensor_msgs/msg/Imu@gz.msgs.IMU',
-                       '/world/empty/model/differential_drive_robot/joint_state@sensor_msgs/msg/JointState@gz.msgs.Model'
+                       '/world/empty/model/differential_drive_robot/joint_state@sensor_msgs/msg/JointState@gz.msgs.Model',
+                       '/world/empty/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock'
                        ],
+            remappings=[
+                ('/world/empty/clock', '/clock'),
+                ('/world/empty/control', '/control'),
+            ],
             output='screen'
         ),
     ])
